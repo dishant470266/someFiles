@@ -1,0 +1,165 @@
+import {
+  Alert,
+  ImageBackground,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import Icon from 'react-native-vector-icons/Octicons';
+import LinearGradient from 'react-native-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import styles from './styles';
+import {Store} from '../../../../utilities/Storage';
+var datafoundinstore = false;
+const Personal = () => {
+  const [date, setDate] = useState(new Date());
+  const [show, setShow] = useState(false);
+  const [dateGot, setDateGot] = useState('Select Date');
+
+  const [name, setName] = useState<any>('');
+  const [email, setEmail] = useState<any>('');
+  const [mobile, setMobile] = useState<any>('');
+  useEffect(() => {
+    // console.log('stateUpdated');
+    SaveUserDetails();
+  }, [name, mobile, dateGot]);
+  const SaveUserDetails = async () => {
+    await AsyncStorage.setItem(
+      'TempUserDetail',
+      JSON.stringify({
+        userName: name,
+        // email: email,
+        usermobile: mobile,
+        dateofbirth: dateGot,
+      }),
+    );
+    // getUserInfo();
+  };
+  const getUserInfo = async () => {
+    const {personal} = await Store.getData('userDetails');
+    // console.log('details on visit :',personal);
+    if (personal) {
+      setName(personal.userName);
+      setMobile(personal.usermobile);
+      setDateGot(personal.dateofbirth);
+      datafoundinstore = true;
+    }
+  };
+
+  const nameEmail = async () => {
+    const userName = await Store.getData('userName');
+    const email = await Store.getData('email');
+
+    // console.log('userName', userName, email);
+    if (!datafoundinstore) {
+      setName(userName);
+    }
+    setEmail(email);
+  };
+
+  useEffect(() => {
+    getUserInfo();
+    nameEmail();
+  }, []);
+
+  const onChange = (event: any, selectedDate: string | number | Date) => {
+    const d: any = new Date(selectedDate).toLocaleDateString('en-us', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
+    const t: any = new Date(selectedDate).toLocaleTimeString('en-us');
+    setDateGot(d);
+    setShow(false);
+    // setDate(currentDate);
+  };
+  return (
+    <ImageBackground
+      resizeMode="cover"
+      source={require('../../../../../Assest/PageBG.jpg')}
+      style={styles.bgroundImage}>
+      <View>
+        <View style={styles.inputcontainer}>
+          <Text style={styles.nameTxt}>Full Name</Text>
+          <TextInput
+            style={styles.input1}
+            placeholderTextColor="#C384F8"
+            placeholder="Faseeh"
+            onChangeText={setName}
+            value={name}
+          />
+        </View>
+        <View style={styles.inputcontainer}>
+          <Text style={styles.emailTxt}>Email Address</Text>
+          <TextInput
+            style={styles.input1}
+            placeholderTextColor="#C384F8"
+            placeholder="Faseeh@gmail.com"
+            keyboardType="email-address"
+            onChangeText={setEmail}
+            value={email}
+            editable={false}
+          />
+        </View>
+        <View style={styles.inputcontainer}>
+          <Text style={styles.mobileTxt}>Mobile No.</Text>
+          <TextInput
+            style={styles.input1}
+            placeholderTextColor="#C384F8"
+            placeholder="000-000-0000"
+            keyboardType="numeric"
+            maxLength={10}
+            onChangeText={setMobile}
+            value={mobile}
+          />
+        </View>
+        <View style={styles.inputcontainer}>
+          <Text style={styles.Dob}>Date of Birth</Text>
+          <TouchableOpacity
+            onPress={() => setShow(true)}
+            style={styles.calendraView}>
+            <Icon
+              name="calendar"
+              size={17}
+              color={'#C384F8'}
+              style={styles.calendraIcon}
+            />
+            <Text style={styles.dateTxt}>
+              {/* 18/08/1995 */}
+              {dateGot}
+            </Text>
+            <View style={styles.downView}>
+              <Icon
+                name="chevron-down"
+                size={22}
+                color={'#C384F8'}
+                style={styles.rightIcon}
+              />
+            </View>
+          </TouchableOpacity>
+          {show && (
+            <DateTimePicker
+              testID="dateTimePicker"
+              value={date}
+              mode={'date'}
+              is24Hour={true}
+              onChange={onChange}
+            />
+          )}
+        </View>
+      </View>
+      {/* <TouchableOpacity onPress={() => userDetails()}>
+        <LinearGradient
+          colors={['#030F18', '#004A82']}
+          style={styles.flashView}>
+          <Text style={styles.AcceptText}>SAVE</Text>
+        </LinearGradient>
+      </TouchableOpacity> */}
+    </ImageBackground>
+  );
+};
+
+export default Personal;
