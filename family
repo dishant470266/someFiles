@@ -1,0 +1,112 @@
+import {
+  Dimensions,
+  FlatList,
+  ImageBackground,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import Icon from 'react-native-vector-icons/Octicons';
+import LinearGradient from 'react-native-linear-gradient';
+import styles from './styles';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Store } from '../../../../utilities/Storage';
+
+const Family = () => {
+
+  const [fatherName, setFatherName] = useState<any>('');
+  const [motherName, setMotherName] = useState<any>('');
+  const [brotherName, setBrotherName] = useState<any>('');
+  const [sisterName, setSisterName] = useState<any>('');
+
+  useEffect(()=>{
+    getFamilyInfo();
+  },[])
+  useEffect(()=>{console.log('family details changes',fatherName);
+  SaveFamilyDetails();
+  },[fatherName,motherName,brotherName,sisterName])
+
+  const SaveFamilyDetails=async ()=>{
+    await AsyncStorage.setItem(
+      'TempFamilyDetails',
+      JSON.stringify({
+        fatherName:fatherName,
+        motherName:motherName,
+        brotherName:brotherName,
+        sisterName:sisterName,
+      }),
+    );
+    // getUserInfo();
+  }
+  const getFamilyInfo = async ()=>{
+       const {family} = await Store.getData('userDetails');
+
+     if(family)
+     {
+    //  console.log('daata',data);
+     setFatherName(family.fatherName);
+      setMotherName(family.motherName);
+      setBrotherName(family.brotherName);
+      setSisterName(family.sisterName);  
+     } 
+   }
+  return (
+    <ImageBackground
+      resizeMode="cover"
+      source={require('../../../../../Assest/PageBG.jpg')}
+      style={styles.bgroundImage}>
+      <View>
+        <View style={styles.inputcontainer}>
+          <Text style={styles.fatherTxt}>Father's Name</Text>
+          <TextInput
+            style={styles.input1}
+            placeholderTextColor="#C384F8"
+            placeholder="Enter Father's Name"
+            onChangeText={setFatherName}
+            value={fatherName}
+          />
+        </View>
+        <View style={styles.inputcontainer}>
+          <Text style={styles.motherTxt}>Mother's Name</Text>
+          <TextInput
+            style={styles.input1}
+            placeholderTextColor="#C384F8"
+            placeholder="Enter Mother Name"
+            onChangeText={setMotherName}
+            value={motherName}
+          />
+        </View>
+        <View style={styles.inputcontainer}>
+          <Text style={styles.brotherTxt}>Brother</Text>
+          <TextInput
+            style={styles.input1}
+            placeholderTextColor="#C384F8"
+            placeholder="Enter Brother Name"
+            onChangeText={setBrotherName}
+            value={brotherName}
+          />
+        </View>
+        <View style={styles.inputcontainer}>
+          <Text style={styles.sisterTxt}>Sister</Text>
+          <TextInput
+            style={styles.input1}
+            placeholderTextColor="#C384F8"
+            placeholder="Enter Sister Name"
+            onChangeText={setSisterName}
+            value={sisterName}
+          />
+        </View>
+      </View>
+      {/* <TouchableOpacity onPress={()=>FamilyDetails()}>
+      <LinearGradient colors={['#030F18', '#004A82']} style={styles.flashView}>
+        <Text style={styles.AcceptText}>SAVE</Text>
+      </LinearGradient>
+      </TouchableOpacity> */}
+    </ImageBackground>
+  );
+};
+
+export default Family;
